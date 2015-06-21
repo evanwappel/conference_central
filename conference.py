@@ -145,12 +145,16 @@ class ConferenceApi(remote.Service):
             data['endDate'] = datetime.strptime(data['endDate'][:10], "%Y-%m-%d").date()
 
         # set seatsAvailable to be same as maxAttendees on creation
+        # both for data model & outbound Message
         if data["maxAttendees"] > 0:
             data["seatsAvailable"] = data["maxAttendees"]
-        # generate Profile Key based on user ID and Conference
-        # ID based on Profile key get Conference key from ID
+            setattr(request, "seatsAvailable", data["maxAttendees"])
+
+        # make Profile Key from user ID
         p_key = ndb.Key(Profile, user_id)
+        # allocate new Conference ID with Profile key as parent
         c_id = Conference.allocate_ids(size=1, parent=p_key)[0]
+        # make Conference key from ID
         c_key = ndb.Key(Conference, c_id, parent=p_key)
         data['key'] = c_key
         data['organizerUserId'] = request.organizerUserId = user_id
