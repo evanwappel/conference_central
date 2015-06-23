@@ -46,6 +46,8 @@ from models import TeeShirtSize
 #from models import FeaturedSpeakerForm
 #from models import FeaturedSpeakerForms
 
+# ---
+
 from settings import WEB_CLIENT_ID
 from settings import ANDROID_CLIENT_ID
 from settings import IOS_CLIENT_ID
@@ -53,11 +55,13 @@ from settings import ANDROID_AUDIENCE
 
 from utils import getUserId
 
+#import logging
 EMAIL_SCOPE = endpoints.EMAIL_SCOPE
 API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
 MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
 ANNOUNCEMENT_TPL = ('Last chance to attend! The following conferences '
                     'are nearly sold out: %s')
+#MEMCACHE_FeaturedSpeaker_KEY = "FEATURED_SPEAKER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 DEFAULTS = {
@@ -66,6 +70,11 @@ DEFAULTS = {
     "seatsAvailable": 0,
     "topics": [ "Default", "Topic" ],
 }
+
+# SESSION_DEFAULTS = {
+#     "typeOfSession" : "Workshop",
+#     "start_time" : "09:00",
+# }
 
 OPERATORS = {
             'EQ':   '=',
@@ -83,6 +92,11 @@ FIELDS =    {
             'MAX_ATTENDEES': 'maxAttendees',
             }
 
+# SESSION_FIELDS =    {
+#             'TYPE': 'typeOfSession',
+#             'START_TIME': 'start_time',
+#             }
+
 CONF_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
     websafeConferenceKey=messages.StringField(1),
@@ -92,6 +106,16 @@ CONF_POST_REQUEST = endpoints.ResourceContainer(
     ConferenceForm,
     websafeConferenceKey=messages.StringField(1),
 )
+
+# SESSION_GET_REQUEST = endpoints.ResourceContainer(
+#     message_types.VoidMessage,
+#     websafeConferenceKey=messages.StringField(1),
+# )
+
+# SESSION_POST_REQUEST = endpoints.ResourceContainer(
+#     SessionForm,
+#     websafeConferenceKey=messages.StringField(1),
+# )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -166,6 +190,7 @@ class ConferenceApi(remote.Service):
 
         # create Conference, send email to organizer confirming
         # creation of Conference & return (modified) ConferenceForm
+        
         Conference(**data).put()
         taskqueue.add(params={'email': user.email(),
             'conferenceInfo': repr(request)},
@@ -219,14 +244,6 @@ class ConferenceApi(remote.Service):
     def createConference(self, request):
         """Create new conference."""
         return self._createConferenceObject(request)
-
-
-    #@endpoints.method(SessionForm, SessionForm, path='conference',
-    #    http_method='POST', name='createSession')
-    #def createSession(self, request):
-    #    """Create new session."""
-    #    return self._createSessionObject(request)
-
 
 
     @endpoints.method(CONF_POST_REQUEST, ConferenceForm,
@@ -567,5 +584,397 @@ class ConferenceApi(remote.Service):
             items=[self._copyConferenceToForm(conf, "") for conf in q]
         )
 
+# #--- new ---------------------------------------------------------------------------
+
+#     def _copySessionToForm(self, session):
+#         """Copy relevant fields from Session to SessionForm."""
+#         sf = SessionForm()
+#         for field in sf.all_fields():
+#             if hasattr(session, field.name):
+#                 setattr(sf, field.name, getattr(session, field.name))
+#             elif field.name == "websafeKey":
+#                 setattr(sf, field.name, session.key.urlsafe())
+#         sf.check_initialized()
+#         return sf
+
+# def _createSessionObject(self, request):
+#         """Create or update session object, returning SessionForm/request."""
+#         user = endpoints.get_current_user()
+#         if not user:
+#             raise endpoints.UnauthorizedException('Authorization required')
+#         user_id = getUserId(user)
+
+#         if not request.name:
+#             raise endpoints.BadRequestException("Session 'name' field required")
+
+#         # copy SessionForm/ProtoRPC Message into dict
+#         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+
+        # # add default values for those missing (both data model & outbound Message)
+        # for df in SESSION_DEFAULTS:
+        #     if data[df] in (None, []):
+        #         data[df] = SESSION_DEFAULTS[df]
+        #         setattr(request, df, SESSION_DEFAULTS[df])
+
+        # del data['websafeKey']
+        # del data['websafeConferenceKey']
+
+        # # generate Conference Key based on websafeConferenceKey
+        # # allocate session id based on conference key
+        # # generate Session key based on session id and session's parent key
+        # c_key = ndb.Key(urlsafe=request.websafeConferenceKey)
+        # s_id = Session.allocate_ids(size=1, parent=c_key)[0]
+        # s_key = ndb.Key(Session, s_id, parent=c_key)
+
+        # data['key'] = s_key
+
+        # session = Session(**data)
+        # session.put()
+
+    #     # add set_featured_speaker task to task queue
+    #     taskqueue.add( params = {'session_speaker' : session.speaker,
+    #                             'session_name' : session.name,
+    #                             'conf_key' : session.key.parent().urlsafe()},
+    #                             url='/tasks/set_featured_speaker')
+    #     return self._copySessionToForm(session)
+
+    # @staticmethod
+    # def _setFeaturedSpeaker(session_speaker, session_name, conf_key):
+    #     """Set featured speaker in memcache"""
+    #     # check if the speaker appears more than twice in sessions
+    #     d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
+    #     if not d:
+    #         d = {}
+    #     if session_speaker not in d:
+    #         q = Session.query(ancestor=ndb.Key(urlsafe=conf_key))
+    #         q = q.filter(Session.speaker==session_speaker).fetch()
+    #         if len(q) >= 2:
+    #             items = [ item.name for item in q]
+    #             d[session_speaker] = items
+    #             ret = memcache.set(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
+
+#         else:
+#             d[session_speaker].append(session_name)
+#             ret = memcache.replace(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
+
+# @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='conference/{websafeConferenceKey}/sessions',
+#             http_method='POST', name='createSession')
+#     def createSession(self, request):
+#         """Given a conference, create new session."""
+#         return self._createSessionObject(request)
+
+#     @endpoints.method(SESSION_GET_REQUEST, SessionForms, path='conference/{websafeConferenceKey}/sessions',
+#             http_method='GET', name='getConferenceSessions')
+#     def getConferenceSessions(self, request):
+#         """Given a conference, return all sessions"""
+#         # create ancestor query for all key matches for this user
+#         sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
+#         # return individual SessionForm object per Session
+#         return SessionForms(
+#             items=[self._copySessionToForm(session) for session in sessions]
+#         )
+
+    # @endpoints.method(endpoints.ResourceContainer(
+    #         message_types.VoidMessage,
+    #         websafeConferenceKey=messages.StringField(1),
+    #         typeOfSession=messages.StringField(2)),
+    #         SessionForms, path='conference/{websafeConferenceKey}/sessions/type',
+    #         http_method='GET', name='getConferenceSessionsByType')
+    # def getConferenceSessionsByType(self, request):
+    #     """Given a conference and a session type, return all sessions of a specified type"""
+    #     sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
+    #     sessions = sessions.filter(Session.typeOfSession==request.typeOfSession)
+
+    #     # return individual SessionForm object per Session
+    #     return SessionForms(
+    #         items=[self._copySessionToForm(session) for session in sessions]
+    #     )
+
+    # @endpoints.method(endpoints.ResourceContainer(
+    #         message_types.VoidMessage,
+    #         speaker=messages.StringField(1)),
+    #         SessionForms, path='sessions/speaker',
+    #         http_method='GET', name='getSessionsBySpeaker')
+    # def getSessionsBySpeaker(self, request):
+    #     """Given a speaker, retrun all sessions given by this particular speaker, across all conferences"""
+    #     sessions = Session.query()
+    #     sessions = sessions.filter(Session.speaker==request.speaker)
+
+    #     # return individual SessionForm object per Session
+    #     return SessionForms(
+    #         items=[self._copySessionToForm(session) for session in sessions]
+    #     )
+
+# # update wishlist -----------------------
+#     # maintain data consistency
+#     @ndb.transactional
+#     def _updateWishlist(self, request, reg=True):
+#         """add session to wishlist"""
+#         user = endpoints.get_current_user()
+#         if not user:
+#             raise endpoints.UnauthorizedException('Authorization required')
+#         user_id = getUserId(user)
+
+#         prof = ndb.Key(Profile, user_id).get()
+
+#         # check if session exists given websafeSessionKey
+#         # get session; check that it exists
+#         wssk = request.websafeSessionKey
+#         session = ndb.Key(urlsafe=wssk).get()
+#         if not session:
+#             raise endpoints.NotFoundException(
+#                 'No session found with key: %s' % wsck)
+
+    #     # when adding, check if user already added otherwise add
+    #     if reg and wssk in prof.sessionKeysToAttend:
+    #         raise ConflictException(
+    #             "You have already added this session to wishlist")
+    #     # when deleting, check if key is in the list before deleting
+    #     elif not reg and wssk not in prof.sessionKeysToAttend:
+    #         raise ConflictException(
+    #             "The session you are deleting is not in the wishlist")
+
+    #     # register user, take away one seat
+    #     if reg:
+    #         prof.sessionKeysToAttend.append(wssk)
+    #     else:
+    #         prof.sessionKeysToAttend.remove(wssk)
+
+    #     # write things back to the datastore & return
+    #     prof.put()
+    #     return BooleanMessage(data=True)
+
+    # @endpoints.method(endpoints.ResourceContainer(
+    #         message_types.VoidMessage,
+    #         websafeSessionKey=messages.StringField(1)), BooleanMessage,
+    #         path='wishlist',
+    #         http_method='POST', name='addSessionToWishlist')
+#     def addSessionToWishlist(self, request):
+#         """add the session to the user's list of sessions they are interested in attending"""
+#         return self._updateWishlist(request)
+
+
+# # delete functions -------------------------------------------------------------------
+
+#     @endpoints.method(endpoints.ResourceContainer(
+#             message_types.VoidMessage,
+#             websafeSessionKey=messages.StringField(1)), BooleanMessage,
+#             path='wishlist/{websafeSessionKey}',
+#             http_method='DELETE', name='deleteSessionFromWishlist')
+#     def deleteSessionFromWishlist(self, request):
+#         """delete the session from the user's list of sessions they are interested in attending"""
+#         return self._updateWishlist(request, reg=False)
+
+#     @endpoints.method(endpoints.ResourceContainer(
+#             message_types.VoidMessage,
+#             websafeSessionKey=messages.StringField(1)), BooleanMessage,
+#             path='sessions/{websafeSessionKey}',
+#             http_method='DELETE', name='deleteSession')
+    # def deleteSession(self, request):
+    #     """delete the session"""
+    #     user = endpoints.get_current_user()
+    #     if not user:
+    #         raise endpoints.UnauthorizedException('Authorization required')
+    #     user_id = getUserId(user)
+    #     prof = ndb.Key(Profile, user_id).get()
+
+    #     # check if session exists given websafeSessionKey
+    #     # get session; check that it exists
+    #     wssk = request.websafeSessionKey
+    #     session = ndb.Key(urlsafe=wssk).get()
+    #     if not session:
+    #         raise endpoints.NotFoundException(
+    #             'No session found with key: %s' % wsck)
+
+    #     # check if the key is in the wishlist
+    #     if wssk in prof.sessionKeysToAttend:
+    #         # delete session from session wishlist
+    #         prof.sessionKeysToAttend.remove(wssk)
+    #     session.key.delete()
+    #     prof.put()
+    #     return BooleanMessage(data=True)
+
+#     @endpoints.method(message_types.VoidMessage, SessionForms,
+#             path='wishlist', http_method='GET', name='getSessionsInWishlist')
+#     def getSessionsInWishlist(self, request):
+#         """query for all the sessions in a session that the user is interested in"""
+#         prof = self._getProfileFromUser() # get user Profile
+#         session_keys = [ndb.Key(urlsafe=wssk) for wssk in prof.sessionKeysToAttend]
+#         sessions = ndb.get_multi(session_keys)
+
+#         # return individual SessionForm object per Session
+#         return SessionForms(
+#             items=[self._copySessionToForm(session) for session in sessions]
+#         )
+
+
+# # helper functions for multiple property queries -----------------------------
+
+#     def _getSessionQuery(self, request):
+#         """Return formatted query from the submitted filters."""
+#         queries = []
+#         filters = self._formatSessionFilters(request.filters)
+#         # If filters don't exist
+#         if not filters:
+#             q = Session.query()
+#             q = q.order(Session.name)
+#             return q
+
+    #     # If exists, multiple queries
+    #     for filtr in filters:
+    #         q = Session.query()
+    #         formatted_query = ndb.query.FilterNode(filtr["field"], filtr["operator"], filtr["value"])
+    #         q = q.filter(formatted_query)
+    #         item_set = set([])
+    #         for item in list(q):
+    #             item_set.add(item.key.urlsafe())
+    #         if item_set:
+    #             queries.append(item_set)
+
+    #     return self._mergeQuery(queries)
+
+    # def _mergeQuery(self, queries):
+    #     """Find items in query lists which share the same key"""
+    #     keys = None
+    #     for query in queries:
+    #         if not keys:
+    #             keys = query
+    #         else:
+    #             keys = keys & query
+    #     res = []
+    #     for key in keys:
+    #         res.append(ndb.Key(urlsafe=key).get())
+
+    #     return res
+
+
+#     def _formatSessionFilters(self, filters):
+#         """Parse, check validity and format user supplied filters."""
+#         formatted_filters = []
+
+#         for f in filters:
+#             filtr = {field.name: getattr(f, field.name) for field in f.all_fields()}
+
+#             try:
+#                 filtr["field"] = SESSION_FIELDS[filtr["field"]]
+#                 filtr["operator"] = OPERATORS[filtr["operator"]]
+#             except KeyError:
+#                 raise endpoints.BadRequestException("Filter contains invalid field or operator.")
+
+#             formatted_filters.append(filtr)
+#         return formatted_filters
+
+
+# # query functions --------------------------------------------------------
+
+#     @endpoints.method(SessionQueryForms, SessionForms,
+#             path='querySessions', http_method='POST', name='querySessions')
+#     def querySession(self, request):
+#         """Query for sessions with multiple filters"""
+#         sessions = self._getSessionQuery(request)
+
+#         # return individual SessionForm object per Session
+#         return SessionForms(
+#                 items=[self._copySessionToForm(session) for session in sessions]
+#         )
+
+    # @endpoints.method(SessionQueryForms, SessionForms,
+    #         path='querySpecificSessions', http_method='POST', name='querySpecificSessions')
+    # def querySpecificSession(self, request):
+    #     """Query for sessions of the specific problem
+
+    #     It only solves the query which filters start_time and type of session.
+    #     """
+
+    #     # get two filters
+    #     # 1 typeOfSession
+    #     # 2 start_time
+    #     filters = self._formatSessionFilters(request.filters)
+
+    #     q = Session.query()
+
+    #     # start time filter and type of session filter
+    #     s_filtr, t_filtr = None, None
+    #     for filtr in filters:
+    #         if filtr["field"] == "start_time":
+    #             s_filtr = filtr
+    #         elif filtr["field"] == "typeOfSession":
+    #             t_filtr = filtr
+
+    #     if s_filtr:
+    #         formatted_query = ndb.query.FilterNode(s_filtr["field"], s_filtr["operator"], s_filtr["value"])
+    #         q = q.filter(formatted_query)
+    #         q = q.order(Session.start_time)
+
+    #     q = q.order(Session.name)
+
+    #     sessions = []
+    #     if t_filtr:
+    #         for item in q:
+    #             if getattr(item, t_filtr["field"]) != t_filtr["value"]:
+    #                 sessions.append(item)
+
+    #     # return individual SessionForm object per Session
+    #     return SessionForms(
+    #             items=[self._copySessionToForm(session) for session in sessions]
+    #     )
+
+    # @endpoints.method(message_types.VoidMessage, SessionForms,
+    #         path='sessions', http_method='GET', name='getSessionsCreated')
+    # def getSessionsCreated(self, request):
+    #     """Return sessions created by user."""
+    #     user = endpoints.get_current_user()
+    #     if not user:
+    #         raise endpoints.UnauthorizedException('Authorization required')
+    #     user_id = getUserId(user)
+
+    #     # create ancestor query for all key matches for this user
+    #     confs = Conference.query(ancestor=ndb.Key(Profile, user_id)).fetch()
+    #     conf_keys = set([conf.key for conf in confs])
+
+    #     sessions = Session.query().fetch()
+
+    #     res = []
+    #     for session in sessions:
+    #         if session.key.parent() in conf_keys:
+    #             res.append(session)
+
+    #     # return individual SessionForm object per Session
+    #     return SessionForms(
+    #         items=[self._copySessionToForm(session) for session in res]
+    #     )
+
+#     @endpoints.method(message_types.VoidMessage, SessionForms,
+#             path='sessions/start_time',
+#             http_method='GET', name='getSessionsByTime')
+#     def getSessionsByTime(self, request):
+#         """Query for sessions, order by start time."""
+#         sessions = Session.query().order(Session.start_time)
+
+#         # return individual SessionForm object per Session
+#         return SessionForms(
+#             items=[self._copySessionToForm(session) for session in sessions]
+#         )
+
+
+# # Memcache ---------------------------------------------------------------
+#     @endpoints.method(message_types.VoidMessage, FeaturedSpeakerForms,
+#             path='speaker',
+#             http_method='GET', name='getFeaturedSpeaker')
+#     def getFeaturedSpeaker(self, request):
+#         """Return featured speaker and session name from memcache."""
+#         d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
+
+#         if not d:
+#             return FeaturedSpeakerForms()
+
+#         items = []
+#         for k, v in d.iteritems():
+#             fs = FeaturedSpeakerForm()
+#             fs.speaker = k
+#             fs.session_names = [StringMessage(data=s) for s in v]
+#             items.append(fs)
+
+#         return FeaturedSpeakerForms(items=items)
 
 api = endpoints.api_server([ConferenceApi]) # register API
