@@ -754,45 +754,45 @@ class ConferenceApi(remote.Service):
         return self._updateWishlist(request)
 
 
-# # delete functions -------------------------------------------------------------------
+# delete functions -------------------------------------------------------------------
 
-#     @endpoints.method(endpoints.ResourceContainer(
-#             message_types.VoidMessage,
-#             websafeSessionKey=messages.StringField(1)), BooleanMessage,
-#             path='wishlist/{websafeSessionKey}',
-#             http_method='DELETE', name='deleteSessionFromWishlist')
-#     def deleteSessionFromWishlist(self, request):
-#         """delete the session from the user's list of sessions they are interested in attending"""
-#         return self._updateWishlist(request, reg=False)
+    @endpoints.method(endpoints.ResourceContainer(
+            message_types.VoidMessage,
+            websafeSessionKey=messages.StringField(1)), BooleanMessage,
+            path='wishlist/{websafeSessionKey}',
+            http_method='DELETE', name='deleteSessionFromWishlist')
+    def deleteSessionFromWishlist(self, request):
+        """delete the session from the user's list of sessions they are interested in attending"""
+        return self._updateWishlist(request, reg=False)
 
-#     @endpoints.method(endpoints.ResourceContainer(
-#             message_types.VoidMessage,
-#             websafeSessionKey=messages.StringField(1)), BooleanMessage,
-#             path='sessions/{websafeSessionKey}',
-#             http_method='DELETE', name='deleteSession')
-    # def deleteSession(self, request):
-    #     """delete the session"""
-    #     user = endpoints.get_current_user()
-    #     if not user:
-    #         raise endpoints.UnauthorizedException('Authorization required')
-    #     user_id = getUserId(user)
-    #     prof = ndb.Key(Profile, user_id).get()
+    @endpoints.method(endpoints.ResourceContainer(
+            message_types.VoidMessage,
+            websafeSessionKey=messages.StringField(1)), BooleanMessage,
+            path='sessions/{websafeSessionKey}',
+            http_method='DELETE', name='deleteSession')
+    def deleteSession(self, request):
+        """delete the session"""
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+        user_id = getUserId(user)
+        prof = ndb.Key(Profile, user_id).get()
 
-    #     # check if session exists given websafeSessionKey
-    #     # get session; check that it exists
-    #     wssk = request.websafeSessionKey
-    #     session = ndb.Key(urlsafe=wssk).get()
-    #     if not session:
-    #         raise endpoints.NotFoundException(
-    #             'No session found with key: %s' % wsck)
+        # check if session exists given websafeSessionKey
+        # get session; check that it exists
+        wssk = request.websafeSessionKey
+        session = ndb.Key(urlsafe=wssk).get()
+        if not session:
+            raise endpoints.NotFoundException(
+                'No session found with key: %s' % wsck)
 
-    #     # check if the key is in the wishlist
-    #     if wssk in prof.sessionKeysToAttend:
-    #         # delete session from session wishlist
-    #         prof.sessionKeysToAttend.remove(wssk)
-    #     session.key.delete()
-    #     prof.put()
-    #     return BooleanMessage(data=True)
+        # check if the key is in the wishlist
+        if wssk in prof.sessionKeysToAttend:
+            # delete session from session wishlist
+            prof.sessionKeysToAttend.remove(wssk)
+        session.key.delete()
+        prof.put()
+        return BooleanMessage(data=True)
 
 #     @endpoints.method(message_types.VoidMessage, SessionForms,
 #             path='wishlist', http_method='GET', name='getSessionsInWishlist')

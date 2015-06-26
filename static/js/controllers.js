@@ -148,6 +148,7 @@ conferenceApp.controllers.controller('CreateConferenceCtrl',
          * @type {string[]}
          */
         $scope.cities = [
+            'Palo Alto',
             'Chicago',
             'London',
             'Paris',
@@ -160,6 +161,7 @@ conferenceApp.controllers.controller('CreateConferenceCtrl',
          * @type {string[]}
          */
         $scope.topics = [
+            'Python',
             'Medical Innovations',
             'Programming Languages',
             'Web Technologies',
