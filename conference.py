@@ -41,10 +41,10 @@ from models import TeeShirtSize
 from models import Session
 from models import SessionForm
 from models import SessionForms
-# from models import SessionQueryForm
-# from models import SessionQueryForms
-# from models import FeaturedSpeakerForm
-# from models import FeaturedSpeakerForms
+from models import SessionQueryForm
+from models import SessionQueryForms
+from models import FeaturedSpeakerForm
+from models import FeaturedSpeakerForms
 
 # ---
 
@@ -638,24 +638,24 @@ class ConferenceApi(remote.Service):
                                 url='/tasks/set_featured_speaker')
         return self._copySessionToForm(session)
 
-    # @staticmethod
-    # def _setFeaturedSpeaker(session_speaker, session_name, conf_key):
-    #     """Set featured speaker in memcache"""
-    #     # check if the speaker appears more than twice in sessions
-    #     d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
-    #     if not d:
-    #         d = {}
-    #     if session_speaker not in d:
-    #         q = Session.query(ancestor=ndb.Key(urlsafe=conf_key))
-    #         q = q.filter(Session.speaker==session_speaker).fetch()
-    #         if len(q) >= 2:
-    #             items = [ item.name for item in q]
-    #             d[session_speaker] = items
-    #             ret = memcache.set(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
+    @staticmethod
+    def _setFeaturedSpeaker(session_speaker, session_name, conf_key):
+        """Set featured speaker in memcache"""
+        # check if the speaker appears more than twice in sessions
+        d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
+        if not d:
+            d = {}
+        if session_speaker not in d:
+            q = Session.query(ancestor=ndb.Key(urlsafe=conf_key))
+            q = q.filter(Session.speaker==session_speaker).fetch()
+            if len(q) >= 2:
+                items = [ item.name for item in q]
+                d[session_speaker] = items
+                ret = memcache.set(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
 
-#         else:
-#             d[session_speaker].append(session_name)
-#             ret = memcache.replace(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
+        else:
+            d[session_speaker].append(session_name)
+            ret = memcache.replace(MEMCACHE_FeaturedSpeaker_KEY, dict(d))
 
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='conference/{websafeConferenceKey}/sessions',
             http_method='POST', name='createSession')
@@ -794,187 +794,187 @@ class ConferenceApi(remote.Service):
         prof.put()
         return BooleanMessage(data=True)
 
-#     @endpoints.method(message_types.VoidMessage, SessionForms,
-#             path='wishlist', http_method='GET', name='getSessionsInWishlist')
-#     def getSessionsInWishlist(self, request):
-#         """query for all the sessions in a session that the user is interested in"""
-#         prof = self._getProfileFromUser() # get user Profile
-#         session_keys = [ndb.Key(urlsafe=wssk) for wssk in prof.sessionKeysToAttend]
-#         sessions = ndb.get_multi(session_keys)
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+            path='wishlist', http_method='GET', name='getSessionsInWishlist')
+    def getSessionsInWishlist(self, request):
+        """query for all the sessions in a session that the user is interested in"""
+        prof = self._getProfileFromUser() # get user Profile
+        session_keys = [ndb.Key(urlsafe=wssk) for wssk in prof.sessionKeysToAttend]
+        sessions = ndb.get_multi(session_keys)
 
-#         # return individual SessionForm object per Session
-#         return SessionForms(
-#             items=[self._copySessionToForm(session) for session in sessions]
-#         )
-
-
-# # helper functions for multiple property queries -----------------------------
-
-#     def _getSessionQuery(self, request):
-#         """Return formatted query from the submitted filters."""
-#         queries = []
-#         filters = self._formatSessionFilters(request.filters)
-#         # If filters don't exist
-#         if not filters:
-#             q = Session.query()
-#             q = q.order(Session.name)
-#             return q
-
-    #     # If exists, multiple queries
-    #     for filtr in filters:
-    #         q = Session.query()
-    #         formatted_query = ndb.query.FilterNode(filtr["field"], filtr["operator"], filtr["value"])
-    #         q = q.filter(formatted_query)
-    #         item_set = set([])
-    #         for item in list(q):
-    #             item_set.add(item.key.urlsafe())
-    #         if item_set:
-    #             queries.append(item_set)
-
-    #     return self._mergeQuery(queries)
-
-    # def _mergeQuery(self, queries):
-    #     """Find items in query lists which share the same key"""
-    #     keys = None
-    #     for query in queries:
-    #         if not keys:
-    #             keys = query
-    #         else:
-    #             keys = keys & query
-    #     res = []
-    #     for key in keys:
-    #         res.append(ndb.Key(urlsafe=key).get())
-
-    #     return res
+        # return individual SessionForm object per Session
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
 
 
-#     def _formatSessionFilters(self, filters):
-#         """Parse, check validity and format user supplied filters."""
-#         formatted_filters = []
+# helper functions for multiple property queries -----------------------------
 
-#         for f in filters:
-#             filtr = {field.name: getattr(f, field.name) for field in f.all_fields()}
+    def _getSessionQuery(self, request):
+        """Return formatted query from the submitted filters."""
+        queries = []
+        filters = self._formatSessionFilters(request.filters)
+        # If filters don't exist
+        if not filters:
+            q = Session.query()
+            q = q.order(Session.name)
+            return q
 
-#             try:
-#                 filtr["field"] = SESSION_FIELDS[filtr["field"]]
-#                 filtr["operator"] = OPERATORS[filtr["operator"]]
-#             except KeyError:
-#                 raise endpoints.BadRequestException("Filter contains invalid field or operator.")
+        # If exists, multiple queries
+        for filtr in filters:
+            q = Session.query()
+            formatted_query = ndb.query.FilterNode(filtr["field"], filtr["operator"], filtr["value"])
+            q = q.filter(formatted_query)
+            item_set = set([])
+            for item in list(q):
+                item_set.add(item.key.urlsafe())
+            if item_set:
+                queries.append(item_set)
 
-#             formatted_filters.append(filtr)
-#         return formatted_filters
+        return self._mergeQuery(queries)
+
+    def _mergeQuery(self, queries):
+        """Find items in query lists which share the same key"""
+        keys = None
+        for query in queries:
+            if not keys:
+                keys = query
+            else:
+                keys = keys & query
+        res = []
+        for key in keys:
+            res.append(ndb.Key(urlsafe=key).get())
+
+        return res
+
+
+    def _formatSessionFilters(self, filters):
+        """Parse, check validity and format user supplied filters."""
+        formatted_filters = []
+
+        for f in filters:
+            filtr = {field.name: getattr(f, field.name) for field in f.all_fields()}
+
+            try:
+                filtr["field"] = SESSION_FIELDS[filtr["field"]]
+                filtr["operator"] = OPERATORS[filtr["operator"]]
+            except KeyError:
+                raise endpoints.BadRequestException("Filter contains invalid field or operator.")
+
+            formatted_filters.append(filtr)
+        return formatted_filters
 
 
 # # query functions --------------------------------------------------------
 
-#     @endpoints.method(SessionQueryForms, SessionForms,
-#             path='querySessions', http_method='POST', name='querySessions')
-#     def querySession(self, request):
-#         """Query for sessions with multiple filters"""
-#         sessions = self._getSessionQuery(request)
+    @endpoints.method(SessionQueryForms, SessionForms,
+            path='querySessions', http_method='POST', name='querySessions')
+    def querySession(self, request):
+        """Query for sessions with multiple filters"""
+        sessions = self._getSessionQuery(request)
 
-#         # return individual SessionForm object per Session
-#         return SessionForms(
-#                 items=[self._copySessionToForm(session) for session in sessions]
-#         )
+        # return individual SessionForm object per Session
+        return SessionForms(
+                items=[self._copySessionToForm(session) for session in sessions]
+        )
 
-    # @endpoints.method(SessionQueryForms, SessionForms,
-    #         path='querySpecificSessions', http_method='POST', name='querySpecificSessions')
-    # def querySpecificSession(self, request):
-    #     """Query for sessions of the specific problem
+    @endpoints.method(SessionQueryForms, SessionForms,
+            path='querySpecificSessions', http_method='POST', name='querySpecificSessions')
+    def querySpecificSession(self, request):
+        """Query for sessions of the specific problem
 
-    #     It only solves the query which filters start_time and type of session.
-    #     """
+        It only solves the query which filters start_time and type of session.
+        """
 
-    #     # get two filters
-    #     # 1 typeOfSession
-    #     # 2 start_time
-    #     filters = self._formatSessionFilters(request.filters)
+        # get two filters
+        # 1 typeOfSession
+        # 2 start_time
+        filters = self._formatSessionFilters(request.filters)
 
-    #     q = Session.query()
+        q = Session.query()
 
-    #     # start time filter and type of session filter
-    #     s_filtr, t_filtr = None, None
-    #     for filtr in filters:
-    #         if filtr["field"] == "start_time":
-    #             s_filtr = filtr
-    #         elif filtr["field"] == "typeOfSession":
-    #             t_filtr = filtr
+        # start time filter and type of session filter
+        s_filtr, t_filtr = None, None
+        for filtr in filters:
+            if filtr["field"] == "start_time":
+                s_filtr = filtr
+            elif filtr["field"] == "typeOfSession":
+                t_filtr = filtr
 
-    #     if s_filtr:
-    #         formatted_query = ndb.query.FilterNode(s_filtr["field"], s_filtr["operator"], s_filtr["value"])
-    #         q = q.filter(formatted_query)
-    #         q = q.order(Session.start_time)
+        if s_filtr:
+            formatted_query = ndb.query.FilterNode(s_filtr["field"], s_filtr["operator"], s_filtr["value"])
+            q = q.filter(formatted_query)
+            q = q.order(Session.start_time)
 
-    #     q = q.order(Session.name)
+        q = q.order(Session.name)
 
-    #     sessions = []
-    #     if t_filtr:
-    #         for item in q:
-    #             if getattr(item, t_filtr["field"]) != t_filtr["value"]:
-    #                 sessions.append(item)
+        sessions = []
+        if t_filtr:
+            for item in q:
+                if getattr(item, t_filtr["field"]) != t_filtr["value"]:
+                    sessions.append(item)
 
-    #     # return individual SessionForm object per Session
-    #     return SessionForms(
-    #             items=[self._copySessionToForm(session) for session in sessions]
-    #     )
+        # return individual SessionForm object per Session
+        return SessionForms(
+                items=[self._copySessionToForm(session) for session in sessions]
+        )
 
-    # @endpoints.method(message_types.VoidMessage, SessionForms,
-    #         path='sessions', http_method='GET', name='getSessionsCreated')
-    # def getSessionsCreated(self, request):
-    #     """Return sessions created by user."""
-    #     user = endpoints.get_current_user()
-    #     if not user:
-    #         raise endpoints.UnauthorizedException('Authorization required')
-    #     user_id = getUserId(user)
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+            path='sessions', http_method='GET', name='getSessionsCreated')
+    def getSessionsCreated(self, request):
+        """Return sessions created by user."""
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+        user_id = getUserId(user)
 
-    #     # create ancestor query for all key matches for this user
-    #     confs = Conference.query(ancestor=ndb.Key(Profile, user_id)).fetch()
-    #     conf_keys = set([conf.key for conf in confs])
+        # create ancestor query for all key matches for this user
+        confs = Conference.query(ancestor=ndb.Key(Profile, user_id)).fetch()
+        conf_keys = set([conf.key for conf in confs])
 
-    #     sessions = Session.query().fetch()
+        sessions = Session.query().fetch()
 
-    #     res = []
-    #     for session in sessions:
-    #         if session.key.parent() in conf_keys:
-    #             res.append(session)
+        res = []
+        for session in sessions:
+            if session.key.parent() in conf_keys:
+                res.append(session)
 
-    #     # return individual SessionForm object per Session
-    #     return SessionForms(
-    #         items=[self._copySessionToForm(session) for session in res]
-    #     )
+        # return individual SessionForm object per Session
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in res]
+        )
 
-#     @endpoints.method(message_types.VoidMessage, SessionForms,
-#             path='sessions/start_time',
-#             http_method='GET', name='getSessionsByTime')
-#     def getSessionsByTime(self, request):
-#         """Query for sessions, order by start time."""
-#         sessions = Session.query().order(Session.start_time)
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+            path='sessions/start_time',
+            http_method='GET', name='getSessionsByTime')
+    def getSessionsByTime(self, request):
+        """Query for sessions, order by start time."""
+        sessions = Session.query().order(Session.start_time)
 
-#         # return individual SessionForm object per Session
-#         return SessionForms(
-#             items=[self._copySessionToForm(session) for session in sessions]
-#         )
+        # return individual SessionForm object per Session
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
 
 
-# # Memcache ---------------------------------------------------------------
-#     @endpoints.method(message_types.VoidMessage, FeaturedSpeakerForms,
-#             path='speaker',
-#             http_method='GET', name='getFeaturedSpeaker')
-#     def getFeaturedSpeaker(self, request):
-#         """Return featured speaker and session name from memcache."""
-#         d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
+# Memcache ---------------------------------------------------------------
+    @endpoints.method(message_types.VoidMessage, FeaturedSpeakerForms,
+            path='speaker',
+            http_method='GET', name='getFeaturedSpeaker')
+    def getFeaturedSpeaker(self, request):
+        """Return featured speaker and session name from memcache."""
+        d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
 
-#         if not d:
-#             return FeaturedSpeakerForms()
+        if not d:
+            return FeaturedSpeakerForms()
 
-#         items = []
-#         for k, v in d.iteritems():
-#             fs = FeaturedSpeakerForm()
-#             fs.speaker = k
-#             fs.session_names = [StringMessage(data=s) for s in v]
-#             items.append(fs)
+        items = []
+        for k, v in d.iteritems():
+            fs = FeaturedSpeakerForm()
+            fs.speaker = k
+            fs.session_names = [StringMessage(data=s) for s in v]
+            items.append(fs)
 
-#         return FeaturedSpeakerForms(items=items)
+        return FeaturedSpeakerForms(items=items)
 
 api = endpoints.api_server([ConferenceApi]) # register API
