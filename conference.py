@@ -598,7 +598,7 @@ class ConferenceApi(remote.Service):
         return sf
 
     def _createSessionObject(self, request):
-        """Create or update session object, returning SessionForm/request."""
+        """Task 1: Create or update session object, returning SessionForm/request."""
         user = endpoints.get_current_user()
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
@@ -666,7 +666,7 @@ class ConferenceApi(remote.Service):
     @endpoints.method(SESSION_GET_REQUEST, SessionForms, path='conference/{websafeConferenceKey}/sessions',
             http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
-        """Given a conference, return all sessions"""
+        """Task 1: Given a conference, return all sessions"""
         # create ancestor query for all key matches for this user
         sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
         # return individual SessionForm object per Session
@@ -681,7 +681,7 @@ class ConferenceApi(remote.Service):
             SessionForms, path='conference/{websafeConferenceKey}/sessions/type',
             http_method='GET', name='getConferenceSessionsByType')
     def getConferenceSessionsByType(self, request):
-        """Given a conference and a session type, return all sessions of a specified type"""
+        """Task 1: Given a conference and a session type, return all sessions of a specified type"""
         sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
         sessions = sessions.filter(Session.typeOfSession==request.typeOfSession)
 
@@ -696,7 +696,7 @@ class ConferenceApi(remote.Service):
             SessionForms, path='sessions/speaker',
             http_method='GET', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
-        """Given a speaker, retrun all sessions given by this particular speaker, across all conferences"""
+        """Task 1: Given a speaker, retrun all sessions given by this particular speaker, across all conferences"""
         sessions = Session.query()
         sessions = sessions.filter(Session.speaker==request.speaker)
 
@@ -750,7 +750,7 @@ class ConferenceApi(remote.Service):
             path='wishlist',
             http_method='POST', name='addSessionToWishlist')
     def addSessionToWishlist(self, request):
-        """add the session to the user's list of sessions they are interested in attending"""
+        """Task 2: Add the session to the user's list of sessions they are interested in attending"""
         return self._updateWishlist(request)
 
 
@@ -762,7 +762,7 @@ class ConferenceApi(remote.Service):
             path='wishlist/{websafeSessionKey}',
             http_method='DELETE', name='deleteSessionFromWishlist')
     def deleteSessionFromWishlist(self, request):
-        """delete the session from the user's list of sessions they are interested in attending"""
+        """Delete the session from the user's list of sessions they are interested in attending"""
         return self._updateWishlist(request, reg=False)
 
     @endpoints.method(endpoints.ResourceContainer(
@@ -771,7 +771,7 @@ class ConferenceApi(remote.Service):
             path='sessions/{websafeSessionKey}',
             http_method='DELETE', name='deleteSession')
     def deleteSession(self, request):
-        """delete the session"""
+        """Delete a session"""
         user = endpoints.get_current_user()
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
@@ -797,7 +797,7 @@ class ConferenceApi(remote.Service):
     @endpoints.method(message_types.VoidMessage, SessionForms,
             path='wishlist', http_method='GET', name='getSessionsInWishlist')
     def getSessionsInWishlist(self, request):
-        """query for all the sessions in a session that the user is interested in"""
+        """Task 2: Query for all the sessions in a session that the user is interested in"""
         prof = self._getProfileFromUser() # get user Profile
         session_keys = [ndb.Key(urlsafe=wssk) for wssk in prof.sessionKeysToAttend]
         sessions = ndb.get_multi(session_keys)
@@ -962,7 +962,7 @@ class ConferenceApi(remote.Service):
             path='speaker',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
-        """Return featured speaker and session name from memcache."""
+        """Task 4: Return featured speaker and session name from memcache."""
         d = memcache.get(MEMCACHE_FeaturedSpeaker_KEY)
 
         if not d:
