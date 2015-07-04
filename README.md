@@ -47,7 +47,7 @@ All added functionality will be testable via APIs Explorer.
 
 ## Tasks Required to Finish the Project
 
-# Task 1: Add Sessions to a Conference
+## Task 1: Add Sessions to a Conference
 
 Overview
 
@@ -77,7 +77,7 @@ start time (in 24 hour notation so it can be ordered).
 Explain in a couple of paragraphs your design choices for session and speaker implementation.
 
 
-# Task 2: Add Sessions to User Wishlist
+## Task 2: Add Sessions to User Wishlist
 
 Overview
 
@@ -93,7 +93,7 @@ I can decide if they can only add conference they have registered to attend or i
 getSessionsInWishlist() -- query for all the sessions in a conference that the user is interested in
 
 
-Task 3: Work on indexes and queries
+## Task 3: Work on indexes and queries
 
 Create indexes
 
@@ -106,11 +106,14 @@ Solve the following query related problem
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
 
 
-Task 4: Add a Task
+## Task 4: Add a Task
 
 Overview
 
-When a new session is added to a conference, check the speaker. If there is more than one session by this speaker at this conference, also add a new Memcache entry that features the speaker and session names. You can choose the Memcache key.
-Define the following Endpoints method
+- When a new session is added to a conference, check the speaker.
+- If there is more than one session by this speaker at this conference, also add a new Memcache entry that features the speaker and session names.
+- I can choose the Memcache key.
+
+Endpoints
 
 getFeaturedSpeaker()
