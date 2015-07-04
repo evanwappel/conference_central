@@ -26,7 +26,9 @@ The Google App Engine application was used for developing the site.
 1. Deploy your application.
 
 Project id: festive-nova-91317
-Deployed app can be acced [here][7]
+
+Deployed app can be accessed [here][7]
+
 
 [1]: https://developers.google.com/appengine
 [2]: http://python.org
