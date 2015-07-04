@@ -25,6 +25,8 @@ The Google App Engine application was used for developing the site.
 1. (Optional) Generate your client library(ies) with [the endpoints tool][6].
 1. Deploy your application.
 
+Project id: festive-nova-91317
+Deployed app can be acced [here][7]
 
 [1]: https://developers.google.com/appengine
 [2]: http://python.org
@@ -32,7 +34,7 @@ The Google App Engine application was used for developing the site.
 [4]: https://console.developers.google.com/
 [5]: https://localhost:8080/
 [6]: https://developers.google.com/appengine/docs/python/endpoints/endpoints_tool
-
+[7]: https://festive-nova-91317.appspot.com
 
 # Project Motivation and Overview
 
