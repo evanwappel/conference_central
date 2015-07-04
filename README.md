@@ -34,18 +34,28 @@ The Google App Engine application was used for developing the site.
 [6]: https://developers.google.com/appengine/docs/python/endpoints/endpoints_tool
 
 
-Project Motivation and Overview
+# Project Motivation and Overview
 
-Currently the Conference Central application is pretty limited - conferences have just name, description and date when the conference happens. But usually conferences have more than that - there are different sessions, with different speakers, maybe some of them happening in parallel! Your task in this project is to add this functionality. Some of the functionality will have well defined requirements, some of it will more open ended and will require for you think about the best way to design it.
-You do not have to do any work on the frontend part of the app to successfully finish this project. All your added functionality will be testable via APIs Explorer.
-You will have to submit your app ID, and text for the parts of the project that require explanation.
-Task 1: Add Sessions to a Conference
+- Currently the Conference Central application is pretty limited
+- Conferences have just name, description and date when the conference happens.
+- Usually conferences have more than that - there are different sessions, with different speakers, maybe some of them happening in parallel!
+- My task in this project is to add this functionality.
+
+Some of the functionality will have well defined requirements, some of it will more open ended.
+The frontend part of the app is not necessary to work on.
+All added functionality will be testable via APIs Explorer.
+
+## Tasks Required to Finish the Project
+
+# Task 1: Add Sessions to a Conference
 
 Overview
 
-Sessions can have speakers, start time, duration, type of session (workshop, lecture etc…), location. You will need to define the Session class and the SessionForm class, as well as appropriate Endpoints.
-You are free to choose how you want to define speakers, eg just as a string or as a full fledged entity.
-Define the following Endpoints methods
+- Sessions can have speakers, start time, duration, type of session (workshop, lecture etc…), location.
+- I will need to define the Session class and the SessionForm class, as well as appropriate Endpoints.
+- Free to choose how I want to define speakers, eg just as a string or as a full fledged entity.
+
+Endpoints
 
 getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
 getConferenceSessionsByType(websafeConferenceKey, typeOfSession) Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)
@@ -61,20 +71,28 @@ duration
 typeOfSession
 date
 start time (in 24 hour notation so it can be ordered).
-Ideally, create the session as a child of the conference.
-Explain your design choices
+- Ideally, create the session as a child of the conference.
+- Explain design choices
 
 Explain in a couple of paragraphs your design choices for session and speaker implementation.
-Task 2: Add Sessions to User Wishlist
+
+
+# Task 2: Add Sessions to User Wishlist
 
 Overview
 
-Users should be able to mark some sessions that they are interested in and retrieve their own current wishlist. You are free to design the way this wishlist is stored.
-Define the following Endpoints methods
+- Users should be able to mark some sessions that they are interested in and retrieve their own current wishlist.
+- I am free to design the way this wishlist is stored.
+
+Endpoints
+
 addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
 
-You can decide if they can only add conference they have registered to attend or if the wishlist is open to all conferences.
+I can decide if they can only add conference they have registered to attend or if the wishlist is open to all conferences.
+
 getSessionsInWishlist() -- query for all the sessions in a conference that the user is interested in
+
+
 Task 3: Work on indexes and queries
 
 Create indexes
@@ -86,6 +104,8 @@ Think about other types of queries that would be useful for this application. De
 Solve the following query related problem
 
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
+
+
 Task 4: Add a Task
 
 Overview
