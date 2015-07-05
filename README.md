@@ -61,20 +61,22 @@ Overview
 
 Endpoints
 
-getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
-getConferenceSessionsByType(websafeConferenceKey, typeOfSession) Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)
-getSessionsBySpeaker(speaker) -- Given a speaker, return all sessions given by this particular speaker, across all conferences
-createSession(SessionForm, websafeConferenceKey) -- open only to the organizer of the conference
+1. getConferenceSessions(websafeConferenceKey) - Given a conference, return all sessions
+2. getConferenceSessionsByType(websafeConferenceKey, typeOfSession) - Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)
+3. getSessionsBySpeaker(speaker)-- Given a speaker, return all sessions given by this particular speaker, across all conferences
+4. createSession(SessionForm, websafeConferenceKey) -- open only to the organizer of the conference
+
 Define Session class and SessionForm
 
 In the SessionForm pass in:
-Session name
-highlights
-speaker
-duration
-typeOfSession
-date
-start time (in 24 hour notation so it can be ordered).
+* Session name
+* highlights
+* speaker
+* duration
+* typeOfSession
+* date
+* start time (in 24 hour notation so it can be ordered).
+
 - Ideally, create the session as a child of the conference.
 - Explain design choices
 
