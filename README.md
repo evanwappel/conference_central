@@ -75,12 +75,12 @@ In the SessionForm pass in:
 * duration
 * typeOfSession
 * date
-* start time (in 24 hour notation so it can be ordered).
+* start time (in 24 hour notation so it can be ordered)
 
-- Ideally, create the session as a child of the conference.
-- Explain design choices
+Ideally, create the session as a child of the conference. Explaination of design choices:
 
-Explain in a couple of paragraphs your design choices for session and speaker implementation.
+
+"""Explain in a couple of paragraphs your design choices for session and speaker implementation.
 
 
 ## Task 2: Add Sessions to User Wishlist
