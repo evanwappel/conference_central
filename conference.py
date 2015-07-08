@@ -131,6 +131,7 @@ class ConferenceApi(remote.Service):
     def _copyConferenceToForm(self, conf, displayName):
         """Copy relevant fields from Conference to ConferenceForm."""
         cf = ConferenceForm()
+        print "cf= ", cf
         for field in cf.all_fields():
             if hasattr(conf, field.name):
                 # convert Date to date string; just copy others
@@ -150,15 +151,17 @@ class ConferenceApi(remote.Service):
         """Create or update Conference object, returning ConferenceForm/request."""
         # preload necessary data items
         user = endpoints.get_current_user()
+        print "user= ", user #test=ewappel
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
         user_id = getUserId(user)
-
+        print "user_id= ", user_id #test=ewappel@gmail.com
         if not request.name:
             raise endpoints.BadRequestException("Conference 'name' field required")
 
         # copy ConferenceForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        print "data= ", data #test=user's input
         del data['websafeKey']
         del data['organizerDisplayName']
 
@@ -166,6 +169,7 @@ class ConferenceApi(remote.Service):
         for df in DEFAULTS:
             if data[df] in (None, []):
                 data[df] = DEFAULTS[df]
+                print "df= ", df, "data[df]= ", data[df] #test
                 setattr(request, df, DEFAULTS[df])
 
         # convert dates from strings to Date objects; set month based on start_date
@@ -660,7 +664,7 @@ class ConferenceApi(remote.Service):
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='conference/{websafeConferenceKey}/sessions',
             http_method='POST', name='createSession')
     def createSession(self, request):
-        """Given a conference, create new session."""
+        """Task 1: Given a conference, create new session."""
         return self._createSessionObject(request)
 
     @endpoints.method(SESSION_GET_REQUEST, SessionForms, path='conference/{websafeConferenceKey}/sessions',
