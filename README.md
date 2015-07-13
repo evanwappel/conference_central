@@ -80,7 +80,12 @@ In the SessionForm pass in:
 Ideally, create the session as a child of the conference. Explaination of design choices:
 
 
-"""Explain in a couple of paragraphs your design choices for session and speaker implementation.
+"""Explain in a couple of paragraphs your design choices for session and speaker implementation:
+	I decided to create the session objects in a similar fashion to the conference objects,
+using the endpoint structure and functions to add data to the datastore. The main difference is
+that the session needs to be a child of the conference.
+	The models.py file was expanded to include similar classes as the conference. (Session,
+SessionForm, SessionForms). A profile key concept (p_key, s_id, s_key) was also used to create the object that gets pushed to the database.
 
 
 ## Task 2: Add Sessions to User Wishlist
