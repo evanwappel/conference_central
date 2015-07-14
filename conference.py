@@ -44,6 +44,7 @@ from models import SessionForm
 from models import SessionForms
 
 
+
 # ---
 
 from settings import WEB_CLIENT_ID
@@ -114,6 +115,8 @@ SESSION_POST_REQUEST = endpoints.ResourceContainer(
     SessionForm,
     websafeConferenceKey=messages.StringField(1),
 )
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -592,6 +595,9 @@ class ConferenceApi(remote.Service):
 
 # #--- new ---------------------------------------------------------------------------
 
+# Task 1: Add Sessions to a Conference
+
+
 # Task 1.4 Create session
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='conference/{websafeConferenceKey}/sessions',
              http_method='POST', name='createSession')
@@ -713,6 +719,9 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(session) for session in sessions]
         )
+
+# Task 2: Add Sessions to User Wishlist
+
 
 
 #     @staticmethod

@@ -100,11 +100,11 @@ Overview
 
 Endpoints
 
-addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
+1. addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
 
 I can decide if they can only add conference they have registered to attend or if the wishlist is open to all conferences.
 
-getSessionsInWishlist() -- query for all the sessions in a conference that the user is interested in
+2. getSessionsInWishlist() -- query for all the sessions in a conference that the user is interested in
 
 
 ## Task 3: Work on indexes and queries
