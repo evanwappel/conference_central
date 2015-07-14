@@ -598,7 +598,7 @@ class ConferenceApi(remote.Service):
 # Task 1: Add Sessions to a Conference
 
 
-# Task 1.4 Create session
+# Task 1.1 Create session
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='conference/{websafeConferenceKey}/sessions',
              http_method='POST', name='createSession')
     def createSession(self, request):
@@ -666,7 +666,7 @@ class ConferenceApi(remote.Service):
         print "\n", "sf= ", sf, "\n"
         return sf
 
-# Task 1.1 Get conference sessions
+# Task 1.2 Get conference sessions
 
     @endpoints.method(SESSION_GET_REQUEST, SessionForms, path='conference/{websafeConferenceKey}/sessions',
             http_method='GET', name='getConferenceSessions')
@@ -680,7 +680,7 @@ class ConferenceApi(remote.Service):
             items=[self._copySessionToForm(session) for session in sessions]
         )
 
-# Task 1.2 Get sessions by type
+# Task 1.3 Get sessions by type
 
     @endpoints.method(endpoints.ResourceContainer(
             message_types.VoidMessage,
@@ -702,7 +702,7 @@ class ConferenceApi(remote.Service):
             items=[self._copySessionToForm(session) for session in sessions]
         )
 
-# Task 1.3 Get sessions by speaker
+# Task 1.4 Get sessions by speaker
     @endpoints.method(endpoints.ResourceContainer(
             message_types.VoidMessage,
             speaker=messages.StringField(1)),
@@ -721,6 +721,60 @@ class ConferenceApi(remote.Service):
         )
 
 # Task 2: Add Sessions to User Wishlist
+
+# 2.1 add session to wishlist
+
+    @endpoints.method(endpoints.ResourceContainer(
+            message_types.VoidMessage,
+            websafeSessionKey=messages.StringField(1)), BooleanMessage,
+            path='wishlist',
+            http_method='POST', name='addSessionToWishlist')
+    def addSessionToWishlist(self, request):
+        """Task 2: Add the session to the user's list of sessions they are interested in attending"""
+        return self._updateWishlist(request)
+    
+    @ndb.transactional
+    def _updateWishlist(self, request, reg=True):
+        """add session to wishlist"""
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+        user_id = getUserId(user)
+        print "\n", "user_id= ", user_id, "\n"
+        prof = ndb.Key(Profile, user_id).get()
+        print "\n", "prof= ", prof, "\n"
+
+        # check if session exists given websafeSessionKey
+        # get session; check that it exists
+        wssk = request.websafeSessionKey
+        print "\n", "wssk= ", wssk, "\n"
+        session = ndb.Key(urlsafe=wssk).get()
+        print "\n", "session= ", session, "\n"
+        if not session:
+            raise endpoints.NotFoundException(
+                'No session found with key: %s' % wsck)
+
+        # when adding, check if user already added otherwise add
+        if reg and wssk in prof.sessionKeysToAttend:
+            raise ConflictException(
+                "You have already added this session to wishlist")
+        # when deleting, check if key is in the list before deleting
+        elif not reg and wssk not in prof.sessionKeysToAttend:
+            raise ConflictException(
+                "The session you are deleting is not in the wishlist")
+
+        # register user, take away one seat
+        if reg:
+            prof.sessionKeysToAttend.append(wssk)
+        else:
+            prof.sessionKeysToAttend.remove(wssk)
+
+        # write things back to the datastore & return
+        prof.put()
+        return BooleanMessage(data=True)
+
+
+
 
 
 
@@ -751,53 +805,8 @@ class ConferenceApi(remote.Service):
 
 
 
-# # update wishlist -----------------------
-#     # maintain data consistency
-#     @ndb.transactional
-#     def _updateWishlist(self, request, reg=True):
-#         """add session to wishlist"""
-#         user = endpoints.get_current_user()
-#         if not user:
-#             raise endpoints.UnauthorizedException('Authorization required')
-#         user_id = getUserId(user)
 
-#         prof = ndb.Key(Profile, user_id).get()
 
-#         # check if session exists given websafeSessionKey
-#         # get session; check that it exists
-#         wssk = request.websafeSessionKey
-#         session = ndb.Key(urlsafe=wssk).get()
-#         if not session:
-#             raise endpoints.NotFoundException(
-#                 'No session found with key: %s' % wsck)
-
-#         # when adding, check if user already added otherwise add
-#         if reg and wssk in prof.sessionKeysToAttend:
-#             raise ConflictException(
-#                 "You have already added this session to wishlist")
-#         # when deleting, check if key is in the list before deleting
-#         elif not reg and wssk not in prof.sessionKeysToAttend:
-#             raise ConflictException(
-#                 "The session you are deleting is not in the wishlist")
-
-#         # register user, take away one seat
-#         if reg:
-#             prof.sessionKeysToAttend.append(wssk)
-#         else:
-#             prof.sessionKeysToAttend.remove(wssk)
-
-#         # write things back to the datastore & return
-#         prof.put()
-#         return BooleanMessage(data=True)
-
-#     @endpoints.method(endpoints.ResourceContainer(
-#             message_types.VoidMessage,
-#             websafeSessionKey=messages.StringField(1)), BooleanMessage,
-#             path='wishlist',
-#             http_method='POST', name='addSessionToWishlist')
-#     def addSessionToWishlist(self, request):
-#         """Task 2: Add the session to the user's list of sessions they are interested in attending"""
-#         return self._updateWishlist(request)
 
 
 # # delete functions -------------------------------------------------------------------

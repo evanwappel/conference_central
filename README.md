@@ -61,10 +61,11 @@ Overview
 
 Endpoints
 
-1. getConferenceSessions(websafeConferenceKey) - Given a conference, return all sessions
-2. getConferenceSessionsByType(websafeConferenceKey, typeOfSession) - Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)
-3. getSessionsBySpeaker(speaker)-- Given a speaker, return all sessions given by this particular speaker, across all conferences
-4. createSession(SessionForm, websafeConferenceKey) -- open only to the organizer of the conference
+1. createSession(SessionForm, websafeConferenceKey) -- open only to the organizer of the conference
+2. getConferenceSessions(websafeConferenceKey) - Given a conference, return all sessions
+3. getConferenceSessionsByType(websafeConferenceKey, typeOfSession) - Given a conference, return all sessions of a specified type (eg lecture, keynote, workshop)
+4. getSessionsBySpeaker(speaker)-- Given a speaker, return all sessions given by this particular speaker, across all conferences
+
 
 Define Session class and SessionForm
 
