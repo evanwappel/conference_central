@@ -493,16 +493,16 @@ class ConferenceApi(remote.Service):
 
         # check if conf exists given websafeConfKey
         # get conference; check that it exists
-        wsck = request.websafeConferenceKey
-        conf = ndb.Key(urlsafe=wsck).get()
+        websafe_conference_key = request.websafeConferenceKey
+        conf = ndb.Key(urlsafe=websafe_conference_key).get()
         if not conf:
             raise endpoints.NotFoundException(
-                'No conference found with key: %s' % wsck)
+                'No conference found with key: %s' % websafe_conference_key)
 
         # register
         if reg:
             # check if user already registered otherwise add
-            if wsck in prof.conferenceKeysToAttend:
+            if websafe_conference_key in prof.conferenceKeysToAttend:
                 raise ConflictException(
                     "You have already registered for this conference")
 
@@ -512,17 +512,17 @@ class ConferenceApi(remote.Service):
                     "There are no seats available.")
 
             # register user, take away one seat
-            prof.conferenceKeysToAttend.append(wsck)
+            prof.conferenceKeysToAttend.append(websafe_conference_key)
             conf.seatsAvailable -= 1
             retval = True
 
         # unregister
         else:
             # check if user already registered
-            if wsck in prof.conferenceKeysToAttend:
+            if websafe_conference_key in prof.conferenceKeysToAttend:
 
                 # unregister user, add back one seat
-                prof.conferenceKeysToAttend.remove(wsck)
+                prof.conferenceKeysToAttend.remove(websafe_conference_key)
                 conf.seatsAvailable += 1
                 retval = True
             else:
@@ -540,7 +540,7 @@ class ConferenceApi(remote.Service):
     def getConferencesToAttend(self, request):
         """Get list of conferences that user has registered for."""
         prof = self._getProfileFromUser() # get user Profile
-        conf_keys = [ndb.Key(urlsafe=wsck) for wsck in prof.conferenceKeysToAttend]
+        conf_keys = [ndb.Key(urlsafe=websafe_conference_key) for websafe_conference_key in prof.conferenceKeysToAttend]
         conferences = ndb.get_multi(conf_keys)
 
         # get organizers
@@ -736,41 +736,37 @@ class ConferenceApi(remote.Service):
     @ndb.transactional
     def _updateWishlist(self, request, reg=True):
         """add session to wishlist"""
+
+        #check to see if user is authoroized
         user = endpoints.get_current_user()
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
         user_id = getUserId(user)
         print "\n", "user_id= ", user_id, "\n"
-        prof = ndb.Key(Profile, user_id).get()
-        print "\n", "prof= ", prof, "\n"
+        profile_key = ndb.Key(Profile, user_id).get()
+        print "\n", "profile_key= ", profile_key, "\n"
 
-        # check if session exists given websafeSessionKey
-        # get session; check that it exists
-        wssk = request.websafeSessionKey
-        print "\n", "wssk= ", wssk, "\n"
-        session = ndb.Key(urlsafe=wssk).get()
+        # check to see if session exists
+        websafe_session_key = request.websafeSessionKey
+        print "\n", "websafe_session_key= ", websafe_session_key, "\n"
+        try:
+            session = ndb.Key(urlsafe=websafe_session_key).get()
+        except Exception, e:
+            print "\n", "e.__class__.__name__= ", e.__class__.__name__, "\n"
+            if e.__class__.__name__ == 'ProtocolBufferDecodeError':
+                raise endpoints.NotFoundException('session does not exist')
+
         print "\n", "session= ", session, "\n"
-        if not session:
-            raise endpoints.NotFoundException(
-                'No session found with key: %s' % wsck)
 
-        # when adding, check if user already added otherwise add
-        if reg and wssk in prof.sessionKeysToAttend:
+        # check to see if session is already on the wishlist
+        if reg and websafe_session_key in profile_key.sessionKeysToAttend:
             raise ConflictException(
-                "You have already added this session to wishlist")
-        # when deleting, check if key is in the list before deleting
-        elif not reg and wssk not in prof.sessionKeysToAttend:
-            raise ConflictException(
-                "The session you are deleting is not in the wishlist")
+                "session has already been added to wishlist")
 
-        # register user, take away one seat
-        if reg:
-            prof.sessionKeysToAttend.append(wssk)
-        else:
-            prof.sessionKeysToAttend.remove(wssk)
+        profile_key.sessionKeysToAttend.append(websafe_session_key)
 
         # write things back to the datastore & return
-        prof.put()
+        profile_key.put()
         return BooleanMessage(data=True)
 
 
@@ -835,16 +831,16 @@ class ConferenceApi(remote.Service):
 
 #         # check if session exists given websafeSessionKey
 #         # get session; check that it exists
-#         wssk = request.websafeSessionKey
-#         session = ndb.Key(urlsafe=wssk).get()
+#         websafe_session_key = request.websafeSessionKey
+#         session = ndb.Key(urlsafe=websafe_session_key).get()
 #         if not session:
 #             raise endpoints.NotFoundException(
-#                 'No session found with key: %s' % wsck)
+#                 'No session found with key: %s' % websafe_conference_key)
 
 #         # check if the key is in the wishlist
-#         if wssk in prof.sessionKeysToAttend:
+#         if websafe_session_key in prof.sessionKeysToAttend:
 #             # delete session from session wishlist
-#             prof.sessionKeysToAttend.remove(wssk)
+#             prof.sessionKeysToAttend.remove(websafe_session_key)
 #         session.key.delete()
 #         prof.put()
 #         return BooleanMessage(data=True)
@@ -854,7 +850,7 @@ class ConferenceApi(remote.Service):
 #     def getSessionsInWishlist(self, request):
 #         """Task 2: Query for all the sessions in a session that the user is interested in"""
 #         prof = self._getProfileFromUser() # get user Profile
-#         session_keys = [ndb.Key(urlsafe=wssk) for wssk in prof.sessionKeysToAttend]
+#         session_keys = [ndb.Key(urlsafe=websafe_session_key) for websafe_session_key in prof.sessionKeysToAttend]
 #         sessions = ndb.get_multi(session_keys)
 
 #         # return individual SessionForm object per Session
