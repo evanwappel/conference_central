@@ -730,7 +730,7 @@ class ConferenceApi(remote.Service):
             path='wishlist',
             http_method='POST', name='addSessionToWishlist')
     def addSessionToWishlist(self, request):
-        """Task 2: Add the session to the user's list of sessions they are interested in attending"""
+        """Task 2.1: Add the session to the user's list of sessions they are interested in attending"""
         return self._updateWishlist(request)
     
     @ndb.transactional
@@ -770,7 +770,23 @@ class ConferenceApi(remote.Service):
         return BooleanMessage(data=True)
 
 
+# Task 2.2 query for all the sessions in a conference that the user is interested in
 
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+        path='wishlist', http_method='GET', name='getSessionsInWishlist')
+
+    def getSessionsInWishlist(self, request):
+        """Task 2.2: query for all the sessions in a session that the user is interested in"""
+        prof = self._getProfileFromUser() # get user Profile
+        session_keys = [ndb.Key(urlsafe=websafe_session_key) for websafe_session_key in prof.sessionKeysToAttend]
+        print "\n", "session_keys= ", session_keys, "\n"
+        sessions = ndb.get_multi(session_keys)
+        print "\n", "sessions= ", sessions, "\n"
+
+        # return individual SessionForm object per Session
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
 
 
 
@@ -845,18 +861,7 @@ class ConferenceApi(remote.Service):
 #         prof.put()
 #         return BooleanMessage(data=True)
 
-#     @endpoints.method(message_types.VoidMessage, SessionForms,
-#             path='wishlist', http_method='GET', name='getSessionsInWishlist')
-#     def getSessionsInWishlist(self, request):
-#         """Task 2: Query for all the sessions in a session that the user is interested in"""
-#         prof = self._getProfileFromUser() # get user Profile
-#         session_keys = [ndb.Key(urlsafe=websafe_session_key) for websafe_session_key in prof.sessionKeysToAttend]
-#         sessions = ndb.get_multi(session_keys)
-
-#         # return individual SessionForm object per Session
-#         return SessionForms(
-#             items=[self._copySessionToForm(session) for session in sessions]
-#         )
+    
 
 
 # # helper functions for multiple property queries -----------------------------
