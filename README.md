@@ -103,7 +103,7 @@ Endpoints
 
 2.1 addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
 
-	I decided that users can sessionss and entire conferences to their wishlist.
+	I decided that users can sessions and entire conferences to their wishlist.
 	Since it is only a wishlist, I think it should be open to all conferences.
 
 2.2 getSessionsInWishlist() -- query for all the sessions in a conference that the user is interested in
