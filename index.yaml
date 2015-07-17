@@ -42,6 +42,13 @@ indexes:
   - name: city
   - name: month
   - name: topics
+  - name: maxAttendees
+
+- kind: Conference
+  properties:
+  - name: city
+  - name: month
+  - name: topics
   - name: name
 
 - kind: Conference

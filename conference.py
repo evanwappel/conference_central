@@ -247,14 +247,14 @@ class ConferenceApi(remote.Service):
         prof = ndb.Key(Profile, user_id).get()
         return self._copyConferenceToForm(conf, getattr(prof, 'displayName'))
 
-
+# createConference
     @endpoints.method(ConferenceForm, ConferenceForm, path='conference',
             http_method='POST', name='createConference')
     def createConference(self, request):
         """Create new conference."""
         return self._createConferenceObject(request)
 
-
+#updateConference
     @endpoints.method(CONF_POST_REQUEST, ConferenceForm,
             path='conference/{websafeConferenceKey}',
             http_method='PUT', name='updateConference')
@@ -262,7 +262,7 @@ class ConferenceApi(remote.Service):
         """Update conference w/provided fields & return w/updated info."""
         return self._updateConferenceObject(request)
 
-
+# getConference
     @endpoints.method(CONF_GET_REQUEST, ConferenceForm,
             path='conference/{websafeConferenceKey}',
             http_method='GET', name='getConference')
@@ -277,7 +277,7 @@ class ConferenceApi(remote.Service):
         # return ConferenceForm
         return self._copyConferenceToForm(conf, getattr(prof, 'displayName'))
 
-
+# getConferencesCreated
     @endpoints.method(message_types.VoidMessage, ConferenceForms,
             path='getConferencesCreated',
             http_method='POST', name='getConferencesCreated')
@@ -579,16 +579,25 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='filterPlayground')
     def filterPlayground(self, request):
         """Filter Playground"""
-        q = Conference.query()
-        # field = "city"
-        # operator = "="
-        # value = "London"
-        # f = ndb.query.FilterNode(field, operator, value)
-        # q = q.filter(f)
-        q = q.filter(Conference.city=="London")
-        q = q.filter(Conference.topics=="Medical Innovations")
-        q = q.filter(Conference.month==6)
 
+        # Let’s say that you don't like workshops
+        # and you don't like sessions after 7 pm
+        q = Session.query().\
+        filter(Session.typeOfSession != 'workshop').\
+        filter(Session.start_time < 7pm)
+        
+        # #1 city equals to Palo Alto
+        # q = q.filter(Conference.city == "Palo Alto")
+
+        # #2 topic equals "Web Technologies"
+        # q = q.filter(Conference.topics == "Web Technologies")
+
+        # #3 order by conference name
+        # q = q.order(Conference.name)
+
+        # #4 filter for big conferences
+        # q = q.filter(Conference.maxAttendees>10)
+        
         return ConferenceForms(
             items=[self._copyConferenceToForm(conf, "") for conf in q]
         )
