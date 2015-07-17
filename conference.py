@@ -579,24 +579,18 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='filterPlayground')
     def filterPlayground(self, request):
         """Filter Playground"""
+        q = Conference.query().\
+            filter(Conference.city == "Palo Alto").\
+            filter(Conference.topics == "Web Technologies")
+        # field = "city"
+        # operator = "="
+        # value = "London"
+        # f = ndb.query.FilterNode(field, operator, value)
+        # q = q.filter(f)
+        #q = q.filter(Conference.city=="Palo Alto")
+        #q = q.filter(Conference.topics=="Medical Innovations")
+        #q = q.filter(Conference.month==6)
 
-        # Let’s say that you don't like workshops
-        # and you don't like sessions after 7 pm
-        q = Session.query().\
-        filter(Session.typeOfSession != 'workshop').\
-        filter(Session.start_time < 7pm)
-        
-        # #1 city equals to Palo Alto
-        # q = q.filter(Conference.city == "Palo Alto")
-
-        # #2 topic equals "Web Technologies"
-        # q = q.filter(Conference.topics == "Web Technologies")
-
-        # #3 order by conference name
-        # q = q.order(Conference.name)
-
-        # #4 filter for big conferences
-        # q = q.filter(Conference.maxAttendees>10)
         
         return ConferenceForms(
             items=[self._copyConferenceToForm(conf, "") for conf in q]
