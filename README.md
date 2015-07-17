@@ -114,16 +114,18 @@ Endpoints
 Create indexes
 
 Make sure the indexes support the type of queries required by the new Endpoints methods.
-Come up with 2 additional queries
-
-Think about other types of queries that would be useful for this application. Describe the purpose of 2 new queries and write the code that would perform them.
+Come up with 2 additional queries. Think about other types of queries that would be useful for this application. Describe the purpose of 2 new queries and write the code that would perform them.
 
 	Query 1: Find all conferences in Palo Alto in Web Technologies
 	One interesting way of implementing this query is:
-		`q = Conference.query().\
+		q = Conference.query().\
             filter(Conference.city == "Palo Alto").\
-            filter(Conference.topics == "Web Technologies")`
+            filter(Conference.topics == "Web Technologies")
+    (Palo Alto needs to be added to the list of default cities)
 
+    Query 2: Find big conferences (more than 10 attendees)
+    	q = Conference.query()
+        q = q.filter(Conference.maxAttendees > 10)
 
 Solve the following query related problem
 

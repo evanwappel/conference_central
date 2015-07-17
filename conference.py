@@ -579,17 +579,15 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='filterPlayground')
     def filterPlayground(self, request):
         """Filter Playground"""
-        q = Conference.query().\
-            filter(Conference.city == "Palo Alto").\
-            filter(Conference.topics == "Web Technologies")
-        # field = "city"
-        # operator = "="
-        # value = "London"
-        # f = ndb.query.FilterNode(field, operator, value)
-        # q = q.filter(f)
-        #q = q.filter(Conference.city=="Palo Alto")
-        #q = q.filter(Conference.topics=="Medical Innovations")
-        #q = q.filter(Conference.month==6)
+
+        # Task 3 Query 1:
+        #q = Conference.query().\
+        #    filter(Conference.city == "Palo Alto").\
+        #    filter(Conference.topics == "Web Technologies")
+        
+        # Task 3 Query 2:
+        q = Conference.query()
+        q = q.filter(Conference.maxAttendees > 10)
 
         
         return ConferenceForms(
