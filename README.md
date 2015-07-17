@@ -120,6 +120,7 @@ Think about other types of queries that would be useful for this application. De
 Solve the following query related problem
 
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
+
 	The problem with this query is that our code is designed to query
 	the conferences class and not session class. We will need to create
 	new "getQuery" and "filterPlayground" functions that will query
