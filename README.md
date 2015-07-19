@@ -103,8 +103,9 @@ Endpoints
 
 2.1 addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
 
-	The wishlist is similar to a list of conferences that the user is registered for. I used
-	the profile class and added sessionKeysToAttend. (similar to conferenceKeysToAttend)
+	The wishlist is similar to a list of conferences that the user is registered for.
+	I used the profile class and added sessionKeysToAttend.
+	(similar to conferenceKeysToAttend)
 	I decided that users can add sessions and entire conferences to their wishlist.
 	Since it is only a wishlist, I made it open to all conferences.
 
