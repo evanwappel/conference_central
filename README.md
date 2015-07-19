@@ -134,10 +134,19 @@ Solve the following query related problem
 
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
 
-	The problem with this query is that our code is designed to query
-	the Conference class and not Session class. We will need to create
-	new "getQuery" and "filterPlayground" functions that will query
-	the Session class
+	There are a couple problems:
+	1. Our code is designed to query the Conference class and not the
+	Session class. I created a filterPlayground_session endpoint
+	that will query the Session class
+	2. You can only have one inequality filter in Google App Engine,
+	and (name != 'workshop') combined with (time < 7pm) counts as
+	two inequalities. One way to get around this is to use the first
+	filter on (name != 'workshop') and then do some string manipulation
+	to get the hour in the start_time field. I filtered out anything
+	with a string in the time, for example, if the user enters '8am'
+	instead of '08:00' and I'm not sure how else to get around this
+	other than somehow formatting 8am into 08:00 when the session is
+	created.
 
 ## Task 4: Add a Task
 

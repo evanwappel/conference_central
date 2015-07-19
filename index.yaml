@@ -89,6 +89,12 @@ indexes:
 - kind: Conference
   properties:
   - name: month
+  - name: city
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: month
   - name: name
 
 - kind: Conference
@@ -106,3 +112,8 @@ indexes:
   properties:
   - name: topics
   - name: name
+
+- kind: Session
+  properties:
+  - name: typeOfSession
+  - name: start_time

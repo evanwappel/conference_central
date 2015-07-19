@@ -664,7 +664,6 @@ class ConferenceApi(remote.Service):
             elif field.name == "websafeKey":
                 setattr(sf, field.name, session.key.urlsafe())
         sf.check_initialized()
-        print "\n", "sf= ", sf, "\n"
         return sf
 
 # Task 1.2 Get conference sessions
@@ -788,6 +787,32 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(session) for session in sessions]
         )
+
+
+# Task 3 query problem: filter playground
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+                path='filterPlayground_session',
+                http_method='GET', name='filterPlayground_session')
+    def filterPlayground_session(self, request):
+        """Filter Playground for sessions"""
+
+        q = Session.query().filter(Session.typeOfSession != "workshop")
+        items_modified = []
+        items=[self._copySessionToForm(sess) for sess in q]
+        s2 = "start_time"
+        for x in range(0,len(items)):
+            string = str(items[x])
+            offset = str(items[x]).find(s2)+14
+            length = 2
+            sliced = string[offset:offset+length]
+            if sliced.isdigit() == True:
+                if int(sliced) < 19:
+                    items_modified.append(items[x])
+
+        return SessionForms(items=items_modified)
+
+
+
 
 
 
