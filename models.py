@@ -137,7 +137,8 @@ class SessionForms(messages.Message):
     """multiple Session outbound form message"""
     items = messages.MessageField(SessionForm, 1, repeated=True)
 
-
-
+class FeaturedSpeakerForms(messages.Message):
+    """multiple Session outbound form message"""
+    items = messages.MessageField(SessionForm, 1, repeated=True)
 
 
