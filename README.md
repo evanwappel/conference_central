@@ -103,6 +103,8 @@ Endpoints
 
 2.1 addSessionToWishlist(SessionKey) -- adds the session to the user's list of sessions they are interested in attending
 
+	The wishlist is similar to a list of conferences that the user is registered for. I used
+	the profile class and added sessionKeysToAttend. (similar to conferenceKeysToAttend)
 	I decided that users can add sessions and entire conferences to their wishlist.
 	Since it is only a wishlist, I made it open to all conferences.
 
@@ -132,9 +134,9 @@ Solve the following query related problem
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
 
 	The problem with this query is that our code is designed to query
-	the conferences class and not session class. We will need to create
+	the Conference class and not Session class. We will need to create
 	new "getQuery" and "filterPlayground" functions that will query
-	the session class
+	the Session class
 
 ## Task 4: Add a Task
 
