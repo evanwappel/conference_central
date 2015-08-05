@@ -667,6 +667,8 @@ class ConferenceApi(remote.Service):
         print "\n"
         print "session repr(request)= ", repr(request)
 
+        # Task 4 - add a task for featured speaker:
+
         # if the speaker is added in more than one session, add task
         q = Session.query().filter(Session.speaker == data['speaker']).count()
         print "q= ", q
@@ -846,7 +848,7 @@ class ConferenceApi(remote.Service):
 
 
     
-# Task 4 - add a task
+
 
 
     

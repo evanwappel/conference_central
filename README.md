@@ -163,3 +163,9 @@ getFeaturedSpeaker()
 	Design Notes:
 	For the speaker object, an additional ndb.Model has been included:
 		class FeaturedSpeaker(ndb.Model)
+	After a session has been added, we query:
+		q = Session.query().filter(
+			Session.speaker == data['speaker']).count()
+	Then we need to check if there is more than one:
+		if q > 1:
+			taskqueue.add( etc...
