@@ -160,6 +160,6 @@ Endpoints
 
 getFeaturedSpeaker()
 
-Design Notes:
-For the speaker object, an additional ndb.Model has been included:
-class FeaturedSpeaker(ndb.Model)
+	Design Notes:
+	For the speaker object, an additional ndb.Model has been included:
+	*class FeaturedSpeaker(ndb.Model)*
