@@ -21,6 +21,8 @@ class ConflictException(endpoints.ServiceException):
     """ConflictException -- exception mapped to HTTP 409 response"""
     http_status = httplib.CONFLICT
 
+# Profile models
+
 class Profile(ndb.Model):
     """Profile -- User profile object"""
     displayName = ndb.StringProperty()
@@ -51,6 +53,8 @@ class StringMessage(messages.Message):
 class BooleanMessage(messages.Message):
     """BooleanMessage-- outbound Boolean value message"""
     data = messages.BooleanField(1)
+
+# Conference models
 
 class Conference(ndb.Model):
     """Conference -- Conference object"""
@@ -112,6 +116,8 @@ class ConferenceQueryForms(messages.Message):
     """ConferenceQueryForms -- multiple ConferenceQueryForm inbound form message"""
     filters = messages.MessageField(ConferenceQueryForm, 1, repeated=True)
 
+# Session models
+
 class Session(ndb.Model):
     """Session object"""
     name = ndb.StringProperty(required=True)
@@ -146,6 +152,13 @@ class SessionQueryForm(messages.Message):
 class SessionQueryForms(messages.Message):
     """SessionQueryForms -- multiple SessionQueryForm inbound form message"""
     filters = messages.MessageField(SessionQueryForm, 1, repeated=True)
+
+# Speaker models
+
+class FeaturedSpeaker(ndb.Model):
+    """FeaturedSpeaker object"""
+    speaker = ndb.StringProperty()
+    
 
 class FeaturedSpeakerForm(messages.Message):
     """FeaturedSpeakerForm -- FeaturedSpeaker query inbound form message"""

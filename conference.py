@@ -56,7 +56,7 @@ MEMCACHE_ANNOUNCEMENTS_KEY = "recent_announcements"
 ANNOUNCEMENT_TPL = ('Last chance to attend! The following conferences '
                     'are nearly sold out: %s')
 MEMCACHE_SPEAKER_KEY = "featured_speaker"
-SPEAKER_TPL = ('The featured speaker is %s')
+SPEAKER_TPL = ('The featured speaker is: ')
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 DEFAULTS = {
@@ -479,23 +479,11 @@ class ConferenceApi(remote.Service):
     @staticmethod
     def _setFeaturedSpeaker(session_speaker, session_name, conf_key):
         """Set featured speaker in memcache"""
-        
-        # check if the speaker appears more than twice in sessions
-        d = memcache.get(MEMCACHE_SPEAKER_KEY)
-        print "d= ", d
-        if not d:
-            d = {}
-        if session_speaker not in d:
-            q = Session.query(ancestor=ndb.Key(urlsafe=conf_key))
-            q = q.filter(Session.speaker==session_speaker).fetch()
-            if len(q) >= 2:
-                items = [ item.name for item in q]
-                d[session_speaker] = items
-                ret = memcache.set(MEMCACHE_SPEAKER_KEY, dict(d))
 
-        else:
-            d[session_speaker].append(session_name)
-            ret = memcache.replace(MEMCACHE_SPEAKER_KEY, dict(d))
+        featured = SPEAKER_TPL + session_speaker
+        memcache.set(MEMCACHE_SPEAKER_KEY, featured)
+
+        return featured
 
 
     @endpoints.method(message_types.VoidMessage, StringMessage,
@@ -679,11 +667,20 @@ class ConferenceApi(remote.Service):
         print "\n"
         print "session repr(request)= ", repr(request)
 
-        # add set_featured_speaker task to task queue
-        taskqueue.add( params = {'session_speaker' : session.speaker,
-                                'session_name' : session.name,
-                                'conf_key' : session.key.parent().urlsafe()},
-                                url='/crons/set_announcement')
+        # if the speaker is added in more than one session, add task
+        q = Session.query().filter(Session.speaker == data['speaker']).count()
+        print "q= ", q
+        print "session.speaker= ", session.speaker
+        print "session.name= ", session.name
+        print "c_key= ", c_key
+
+
+        if q > 1:
+            # add set_featured_speaker task to task queue
+            taskqueue.add( params = {'session_speaker' : session.speaker,
+                                    'session_name' : session.name,
+                                    'c_key' : session.key.parent().urlsafe()},
+                                    url='/tasks/set_featured_speaker')
 
 
 
@@ -867,24 +864,12 @@ class ConferenceApi(remote.Service):
         return StringMessage(data=memcache.get(MEMCACHE_ANNOUNCEMENTS_KEY) or "")
 
 
-    @endpoints.method(message_types.VoidMessage, FeaturedSpeakerForms,
+    @endpoints.method(message_types.VoidMessage, StringMessage,
             path='speaker',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
         """Return featured speaker and session name from memcache."""
-        d = memcache.get(MEMCACHE_SPEAKER_KEY)
-        print "d= ", d
-        if not d:
-            return FeaturedSpeakerForms()
-
-        items = []
-        for k, v in d.iteritems():
-            fs = FeaturedSpeakerForm()
-            fs.speaker = k
-            fs.session_names = [StringMessage(data=s) for s in v]
-            items.append(fs)
-
-        return FeaturedSpeakerForms(items=items)
+        return StringMessage(data=memcache.get(MEMCACHE_SPEAKER_KEY) or "")
 
 
 
