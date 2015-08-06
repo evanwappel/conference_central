@@ -120,6 +120,7 @@ Make sure the indexes support the type of queries required by the new Endpoints 
 Come up with 2 additional queries. Think about other types of queries that would be useful for this application. Describe the purpose of 2 new queries and write the code that would perform them.
 
 	Query 1: Find all conferences in Palo Alto in Web Technologies
+		Endpoint: queryProblem1
 	One interesting way of implementing this query is:
 		q = Conference.query().\
             filter(Conference.city == "Palo Alto").\
@@ -127,6 +128,7 @@ Come up with 2 additional queries. Think about other types of queries that would
     (Palo Alto needs to be added to the list of default cities)
 
     Query 2: Find big conferences (more than 10 attendees)
+    	Endpoint: queryProblem1
     	q = Conference.query()
         q = q.filter(Conference.maxAttendees > 10)
 
@@ -169,3 +171,4 @@ getFeaturedSpeaker()
 	Then we need to check if there is more than one:
 		if q > 1:
 			taskqueue.add( etc...
+	

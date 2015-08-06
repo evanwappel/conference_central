@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+import webapp2
+from google.appengine.api import app_identity
+from google.appengine.api import mail
+from conference import ConferenceApi
+
+# !/usr/bin/env python
 
 """
 main.py -- Udacity conference server-side Python App Engine
@@ -12,10 +17,6 @@ created by wesc on 2014 may 24
 
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
-import webapp2
-from google.appengine.api import app_identity
-from google.appengine.api import mail
-from conference import ConferenceApi
 
 class SetAnnouncementHandler(webapp2.RequestHandler):
     def get(self):
@@ -37,13 +38,15 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
                 'conferenceInfo')
         )
 
+
 class SetFeaturedSpeakerHandler(webapp2.RequestHandler):
     def post(self):
         """Set Announcement in Memcache."""
         session_speaker = self.request.get('session_speaker')
         session_name = self.request.get('session_name')
         conf_key = self.request.get('conf_key')
-        ConferenceApi._setFeaturedSpeaker(session_speaker, session_name, conf_key)
+        ConferenceApi._setFeaturedSpeaker(
+            session_speaker, session_name, conf_key)
         self.response.set_status(204)
 
 
