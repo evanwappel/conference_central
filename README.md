@@ -128,7 +128,7 @@ Come up with 2 additional queries. Think about other types of queries that would
     (Palo Alto needs to be added to the list of default cities)
 
     Query 2: Find big conferences (more than 10 attendees)
-    	Endpoint: queryProblem1
+    	Endpoint: queryProblem2
     	q = Conference.query()
         q = q.filter(Conference.maxAttendees > 10)
 
