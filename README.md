@@ -91,6 +91,8 @@ Ideally, create the session as a child of the conference. Explaination of design
 	(Session, SessionForm, SessionForms). A profile key concept (p_key, s_id, s_key)
 	was also used to create the object that gets pushed to the database.
 
+	For the NDB Property Types, I used mostly StringProperty because 1500 bytes should be enough for conference data. I tried using TimeProperty for the session start time, but I noitced there were errors, and the platform never did correctly parse out time values, for example if the user enters "13:00" or "2pm" I was expecting the TimeProperty to recognize this as 1pm and 2pm, and send it as a time format. Unfortunately, this threw an error so I have converted it back to StringProperty.
+
 
 ## Task 2: Add Sessions to User Wishlist
 
